@@ -1,0 +1,14 @@
+[Setings]
+LogLevel = "info"
+#LogLevel = "debug"
+
+[CtiAPI]
+Scheme = "ws"
+Path = "/ws"
+Host = "192.168.223.50"
+Port = "8098"
+
+[HttpAPI]
+Scheme = "http"
+Host = "*"
+Port = "9595"
