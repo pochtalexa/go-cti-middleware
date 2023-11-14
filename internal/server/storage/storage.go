@@ -20,8 +20,13 @@ type AgentEvents struct {
 	SetSessionModeResponse map[string]interface{}
 	CallParamsUpdated      map[string]interface{}
 	LocalParamsUpdated     map[string]interface{}
+	Conferences            map[string]interface{}
+	Ok                     map[string]interface{}
+	Error                  map[string]interface{}
+	ParseError             map[string]interface{}
 }
 
+// AgentsInfo мапа с ключом - логин оператора
 type AgentsInfo struct {
 	Events map[string]AgentEvents
 }
@@ -45,33 +50,23 @@ type WsCommand struct {
 
 // WsEvent событие или ответ от CTI API
 type WsEvent struct {
-	Name         string
-	Login        string
-	Body         map[string]interface{}
-	ServiceNames wsServiceNames
-}
-
-type wsServiceNames struct {
-	errorNames []string // Error, ParseError
-	okNames    []string // Ok, UserState
+	Name       string
+	Login      string
+	Body       map[string]interface{}
+	ErrorNames []string
 }
 
 func NewWsCommand() *WsCommand {
 	return &WsCommand{}
-
 }
 
 func NewWsEvent() *WsEvent {
 	return &WsEvent{
-		Body: make(map[string]interface{}),
-		ServiceNames: wsServiceNames{
-			errorNames: []string{"Error", "ParseError"},
-			okNames:    []string{"Ok", "UserState"},
-		},
+		ErrorNames: []string{"Error", "ParseError"},
 	}
 }
 
-func NewAgentInfo() *AgentsInfo {
+func NewAgentsInfo() *AgentsInfo {
 	return &AgentsInfo{
 		Events: make(map[string]AgentEvents),
 	}
@@ -92,10 +87,8 @@ func (w *WsEvent) Parse() {
 }
 
 func (a *AgentsInfo) SetEvent(event *WsEvent) error {
-	curEvents, ok := a.Events[event.Name]
-	if !ok {
-		return fmt.Errorf("can not find val for key %v", event.Name)
-	}
+	// сохраняем текущие события по оператору и обновляем
+	curEvents := a.Events[event.Login]
 
 	switch event.Name {
 	case "UserState":
@@ -126,11 +119,23 @@ func (a *AgentsInfo) SetEvent(event *WsEvent) error {
 		curEvents.CurrentCall = event.Body
 	case "CallStatus":
 		curEvents.CallStatus = event.Body
+	case "Conferences":
+		curEvents.Conferences = event.Body
+	case "Ok":
+		curEvents.Ok = event.Body
+	case "Error":
+		curEvents.Error = event.Body
+	case "ParseError":
+		curEvents.ParseError = event.Body
 	default:
 		return fmt.Errorf("can not find case for key %v", event.Name)
 	}
 
-	a.Events[event.Name] = curEvents
+	if event.Login == "" {
+		a.Events["noName"] = curEvents
+	} else {
+		a.Events[event.Login] = curEvents
+	}
 
 	return nil
 }
