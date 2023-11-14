@@ -10,5 +10,5 @@ Port = "8098"
 
 [HttpAPI]
 Scheme = "http"
-Host = "*"
+Host = "localhost"
 Port = "9595"
