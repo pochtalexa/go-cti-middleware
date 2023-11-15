@@ -5,10 +5,13 @@ import (
 	"compress/gzip"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/pochtalexa/go-cti-middleware/internal/handlers"
+	"github.com/go-chi/httplog/v2"
+	"github.com/pochtalexa/go-cti-middleware/internal/server/handlers"
 	"github.com/rs/zerolog/log"
+	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // проверяем, что клиент отправил серверу сжатые данные в формате gzip
@@ -50,8 +53,30 @@ func GzipDecompression(next http.Handler) http.Handler {
 }
 
 func RunAPI(urlStr string) error {
+	logger := httplog.NewLogger("httplog", httplog.Options{
+		LogLevel: slog.LevelDebug,
+		// JSON:             true,
+		Concise:          false,
+		RequestHeaders:   true,
+		ResponseHeaders:  true,
+		MessageFieldName: "msg",
+		//LevelFieldName:   "severity",
+		TimeFieldFormat: time.RFC3339,
+		Tags: map[string]string{
+			"version": "v1.0",
+			"env":     "dev",
+		},
+		//QuietDownRoutes: []string{
+		//	"/",
+		//	"/ping",
+		//},
+		//QuietDownPeriod: 10 * time.Second,
+		//SourceFieldName: "source",
+	})
+
 	mux := chi.NewRouter()
 	mux.Use(middleware.RequestID)
+	mux.Use(httplog.RequestLogger(logger))
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	mux.Use(GzipDecompression)

@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/httplog/v2 v2.0.7
 	github.com/gorilla/websocket v1.5.1
 	github.com/pelletier/go-toml/v2 v2.1.0
 	github.com/rs/zerolog v1.31.0
