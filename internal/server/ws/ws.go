@@ -24,8 +24,10 @@ func SendCommand(c *websocket.Conn, wsMessage *storage.WsCommand) error {
 	return nil
 }
 
+// TODO ошибки одавать в канал
+
 // ReadMessage WS goroutine
-func ReadMessage(c *websocket.Conn, agentsInfo *storage.AgentsInfo) {
+func ReadMessage(c *websocket.Conn, agentsInfo *storage.StAgentsInfo) {
 
 	for {
 		wsEvent := storage.NewWsEvent()

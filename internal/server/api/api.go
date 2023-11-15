@@ -55,7 +55,7 @@ func GzipDecompression(next http.Handler) http.Handler {
 func RunAPI(urlStr string) error {
 	logger := httplog.NewLogger("httplog", httplog.Options{
 		LogLevel: slog.LevelDebug,
-		// JSON:             true,
+		//JSON:             true,
 		Concise:          false,
 		RequestHeaders:   true,
 		ResponseHeaders:  true,
@@ -76,11 +76,11 @@ func RunAPI(urlStr string) error {
 
 	mux := chi.NewRouter()
 	mux.Use(middleware.RequestID)
-	mux.Use(httplog.RequestLogger(logger))
-	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	mux.Use(GzipDecompression)
 	mux.Use(middleware.Compress(flate.DefaultCompression, "application/json", "text/html"))
+	mux.Use(middleware.Logger)
+	mux.Use(httplog.RequestLogger(logger))
 
 	mux.Get("/", handlers.RootHandler)
 

@@ -4,6 +4,11 @@ import (
 	"fmt"
 )
 
+var AgentsInfo = NewAgentsInfo()
+
+// TODO на перспективу использовать Redis
+// TODO описать поля мап
+
 // AgentEvents возможные события относительно оператора
 type AgentEvents struct {
 	UserState              map[string]interface{}
@@ -26,8 +31,8 @@ type AgentEvents struct {
 	ParseError             map[string]interface{}
 }
 
-// AgentsInfo мапа с ключом - логин оператора
-type AgentsInfo struct {
+// StAgentsInfo мапа с ключом - логин оператора
+type StAgentsInfo struct {
 	Events map[string]AgentEvents
 }
 
@@ -66,8 +71,8 @@ func NewWsEvent() *WsEvent {
 	}
 }
 
-func NewAgentsInfo() *AgentsInfo {
-	return &AgentsInfo{
+func NewAgentsInfo() *StAgentsInfo {
+	return &StAgentsInfo{
 		Events: make(map[string]AgentEvents),
 	}
 }
@@ -86,7 +91,7 @@ func (w *WsEvent) Parse() {
 	}
 }
 
-func (a *AgentsInfo) SetEvent(event *WsEvent) error {
+func (a *StAgentsInfo) SetEvent(event *WsEvent) error {
 	// сохраняем текущие события по оператору и обновляем
 	curEvents := a.Events[event.Login]
 

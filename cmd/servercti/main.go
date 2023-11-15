@@ -13,8 +13,11 @@ import (
 )
 
 func main() {
+	// TODO тесты
+	// TODO авторизация агента + DB
+	// TODO sync.Mutex
+
 	appConfig := config.NewConfig()
-	agentsInfo := storage.NewAgentsInfo()
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
@@ -40,7 +43,7 @@ func main() {
 	defer c.Close()
 	log.Info().Str("ws connected", uCTI.String()).Msg("")
 
-	go ws.ReadMessage(c, agentsInfo)
+	go ws.ReadMessage(c, storage.AgentsInfo)
 
 	if err := cti.InitCTISess(c); err != nil {
 		log.Fatal().Err(err).Msg("initCTISess")
