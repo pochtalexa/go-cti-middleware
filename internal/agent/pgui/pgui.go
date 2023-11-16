@@ -12,10 +12,11 @@ import (
 )
 
 var (
-	Action    *tview.Form
-	UserState *tview.TextView
-	NewCall   *tview.TextView
-	app       *tview.Application
+	Action     *tview.Form
+	UserState  *tview.TextView
+	NewCall    *tview.TextView
+	CallStatus *tview.TextView
+	app        *tview.Application
 )
 
 func refresh() {
@@ -95,23 +96,25 @@ func Init() {
 	footer := newTextView("footer")
 	UserState = newTextView("UserState")
 	NewCall = newTextView("NewCall")
+	CallStatus = newTextView("CallStatus")
 	Action = newForm("Action", "agent")
 
 	grid := tview.NewGrid().
-		SetRows(1, 0, 0, 1).
+		SetRows(1, 0, 0, 0, 1).
 		SetColumns(30, 0, 30).
 		SetBorders(true).
 		AddItem(header, 0, 0, 1, 3, 0, 0, false).
-		AddItem(footer, 3, 0, 1, 3, 0, 0, false)
+		AddItem(footer, 4, 0, 1, 3, 0, 0, false)
 
 	//Layout for screens narrower than 100 cells (menu and side bar are hidden).
 	//grid.AddItem(actions, 0, 0, 0, 0, 0, 0, true).
 	//	AddItem(main, 1, 0, 1, 3, 0, 0, false)
 
 	// Layout for screens wider than 100 cells.
-	grid.AddItem(Action, 1, 0, 2, 1, 1, 1, true).
+	grid.AddItem(Action, 1, 0, 3, 1, 1, 1, true).
 		AddItem(UserState, 1, 1, 1, 2, 1, 1, false).
-		AddItem(NewCall, 2, 1, 1, 2, 1, 1, false)
+		AddItem(NewCall, 2, 1, 1, 2, 1, 1, false).
+		AddItem(CallStatus, 3, 1, 1, 2, 1, 1, false)
 
 	//go refresh()
 

@@ -52,8 +52,36 @@ func (a *StAgentEvents) ToString(name string) (string, error) {
 	case "UserState":
 		_, ok := a.UserState["name"]
 		if ok {
+			event := a.UserState
 			result = fmt.Sprintf("state: %v, substates: %v, reason: %v",
-				a.UserState["state"], a.UserState["substates"], a.UserState["reason"])
+				event["state"], event["substates"], event["reason"])
+		} else {
+			result = "-"
+		}
+	case "NewCall":
+		_, ok := a.NewCall["name"]
+		if ok {
+			event := a.NewCall
+			result = fmt.Sprintf("state: %v, direction: %v, displayName: %v",
+				event["state"], event["direction"], event["displayName"])
+		} else {
+			result = "-"
+		}
+	case "CallStatus":
+		_, ok := a.CallStatus["name"]
+		if ok {
+			event := a.CallStatus
+			result = fmt.Sprintf(
+				"state: %v, "+
+					"params: %v, "+
+					"creationTime: %v, "+
+					"answerTime: %v, "+
+					"hangupTime: %v, ",
+				event["state"],
+				event["params"],
+				event["creationTime"],
+				event["answerTime"],
+				event["hangupTime"])
 		} else {
 			result = "-"
 		}

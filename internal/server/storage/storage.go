@@ -9,8 +9,8 @@ var AgentsInfo = NewAgentsInfo()
 // TODO на перспективу использовать Redis
 // TODO описать поля мап
 
-// AgentEvents возможные события относительно оператора
-type AgentEvents struct {
+// StAgentEvents возможные события относительно оператора
+type StAgentEvents struct {
 	UserState              map[string]interface{}
 	NewCall                map[string]interface{}
 	CallStatus             map[string]interface{}
@@ -33,11 +33,12 @@ type AgentEvents struct {
 
 // StAgentsInfo мапа с ключом - логин оператора
 type StAgentsInfo struct {
-	Events map[string]AgentEvents
+	Events  map[string]StAgentEvents
+	Updated map[string]bool
 }
 
-// WsCommand команда в сторону CTI API
-type WsCommand struct {
+// StWsCommand команда в сторону CTI API
+type StWsCommand struct {
 	Name            string `json:"name"` // название команды или события
 	Login           string `json:"login,omitempty"`
 	Rid             string `json:"rid,omitempty"` // Значение данного поля ответного сообщения соответствует значению этого же поля команды. Если событие не является ответом на команду, то поле отсутствует.
@@ -54,31 +55,32 @@ type WsCommand struct {
 	Url             string `json:"url,omitempty"`
 }
 
-// WsEvent событие или ответ от CTI API
-type WsEvent struct {
+// StWsEvent событие или ответ от CTI API
+type StWsEvent struct {
 	Name       string
 	Login      string
 	Body       map[string]interface{}
 	ErrorNames []string
 }
 
-func NewWsCommand() *WsCommand {
-	return &WsCommand{}
+func NewWsCommand() *StWsCommand {
+	return &StWsCommand{}
 }
 
-func NewWsEvent() *WsEvent {
-	return &WsEvent{
+func NewWsEvent() *StWsEvent {
+	return &StWsEvent{
 		ErrorNames: []string{"Error", "ParseError"},
 	}
 }
 
 func NewAgentsInfo() *StAgentsInfo {
 	return &StAgentsInfo{
-		Events: make(map[string]AgentEvents),
+		Events:  make(map[string]StAgentEvents),
+		Updated: make(map[string]bool),
 	}
 }
 
-func (w *WsEvent) Parse() {
+func (w *StWsEvent) Parse() {
 	if _, ok := w.Body["name"]; ok {
 		w.Name = fmt.Sprintf("%v", w.Body["name"])
 	} else {
@@ -92,7 +94,7 @@ func (w *WsEvent) Parse() {
 	}
 }
 
-func (a *StAgentsInfo) SetEvent(event *WsEvent) error {
+func (a *StAgentsInfo) SetEvent(event *StWsEvent) error {
 	// сохраняем текущие события по оператору и обновляем
 	curEvents := a.Events[event.Login]
 
@@ -139,9 +141,15 @@ func (a *StAgentsInfo) SetEvent(event *WsEvent) error {
 
 	if event.Login == "" {
 		a.Events["noName"] = curEvents
+		a.Updated["noName"] = true
 	} else {
 		a.Events[event.Login] = curEvents
+		a.Updated[event.Login] = true
 	}
 
 	return nil
+}
+
+func (a *StAgentsInfo) DropAgentEvents(login string) {
+	a.Events[login] = StAgentEvents{}
 }

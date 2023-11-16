@@ -9,7 +9,7 @@ import (
 	"slices"
 )
 
-func SendCommand(c *websocket.Conn, wsMessage *storage.WsCommand) error {
+func SendCommand(c *websocket.Conn, wsMessage *storage.StWsCommand) error {
 
 	body, err := json.Marshal(wsMessage)
 	if err != nil {
@@ -28,7 +28,6 @@ func SendCommand(c *websocket.Conn, wsMessage *storage.WsCommand) error {
 
 // ReadMessage WS goroutine
 func ReadMessage(c *websocket.Conn, agentsInfo *storage.StAgentsInfo) {
-
 	for {
 		wsEvent := storage.NewWsEvent()
 		_, message, err := c.ReadMessage()

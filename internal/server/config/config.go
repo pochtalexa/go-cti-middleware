@@ -46,7 +46,7 @@ func (c *Config) ReadConfigFile() error {
 		return fmt.Errorf("unmarshal: %w", err)
 	}
 
-	log.Info().Msg("config file parsed - success")
+	log.Info().Msg("config file parsed - ok")
 
 	return nil
 }

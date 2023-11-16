@@ -41,7 +41,7 @@ func InitCTISess(c *websocket.Conn) error {
 		return fmt.Errorf("initCTISess: %w", err)
 	}
 
-	log.Info().Msg("InitCTISess - success")
+	log.Info().Msg("InitCTISess - ok")
 	return nil
 }
 
@@ -55,7 +55,7 @@ func AttachUser(c *websocket.Conn, login string) error {
 		return fmt.Errorf("AttachUser: %w", err)
 	}
 
-	log.Info().Str("login", login).Msg("AttachUser - success")
+	log.Info().Str("login", login).Msg("AttachUser - ok")
 	return nil
 }
 
@@ -70,7 +70,7 @@ func ChageStatus(c *websocket.Conn, login string, status string) error {
 		return fmt.Errorf("ChangeUserState: %w", err)
 	}
 
-	log.Info().Str("login", login).Msg("ChangeUserState - success")
+	log.Info().Str("login", login).Msg("ChangeUserState - ok")
 	return nil
 
 }

@@ -31,5 +31,5 @@ func ParseFlags() {
 	flag.StringVar(&Password, "p", defaultPassword, "password")
 	flag.Parse()
 
-	log.Info().Msg("ParseFlags - success")
+	log.Info().Msg("ParseFlags - ok")
 }
