@@ -46,6 +46,7 @@ type WsCommand struct {
 	PhoneNumber     string `json:"phoneNumber,omitempty"`
 	ParamName       string `json:"paramName,omitempty"`
 	ParamValue      string `json:"paramValue,omitempty"`
+	State           string `json:"state,omitempty"` // Состояние программного телефона, которое необходимо установить
 	On              bool   `json:"on,omitempty"`
 	Enable          bool   `json:"enable,omitempty"`
 	Target          string `json:"target,omitempty"`

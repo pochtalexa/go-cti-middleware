@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/pochtalexa/go-cti-middleware/internal/server/cti"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/storage"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -14,7 +16,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 
 	//dec := json.NewDecoder(r.Body)
 	//if err := dec.Decode(&reqBody); err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
+	//	w.WriteHeader(httpconf.StatusInternalServerError)
 	//	log.Error().Err(err).Msg("Decode")
 	//	return
 	//}
@@ -36,4 +38,24 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	return
+}
+
+func ControlHandler(w http.ResponseWriter, r *http.Request) {
+	reqBody := make(map[string]string)
+
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&reqBody); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Error().Err(err).Msg("Decode")
+		return
+	}
+
+	if err := cti.ChageStatus(cti.Conn, "agent", reqBody["ChangeUserState"]); err != nil {
+		log.Error().Err(err).Msg("call ChageStatus")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	log.Info().Str("reqBody", fmt.Sprint(reqBody)).Msg("reqBody")
 }

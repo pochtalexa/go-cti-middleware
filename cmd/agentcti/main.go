@@ -3,28 +3,27 @@ package main
 import (
 	"encoding/json"
 	"github.com/pochtalexa/go-cti-middleware/internal/agent/flags"
+	"github.com/pochtalexa/go-cti-middleware/internal/agent/httpconf"
 	"github.com/pochtalexa/go-cti-middleware/internal/agent/pgui"
+	"github.com/pochtalexa/go-cti-middleware/internal/agent/storage"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 )
 
 func main() {
-	httpClient := http.Client{}
 	resp := make(map[string]interface{})
 
+	httpconf.Init()
 	flags.ParseFlags()
 
 	go pgui.Init()
 
-	uServer := "http://localhost:9595/"
-
-	req, _ := http.NewRequest(http.MethodGet, uServer, nil)
+	req, _ := http.NewRequest(http.MethodGet, flags.ServAddr, nil)
 
 	for range time.Tick(time.Second * 1) {
-		userState := make(map[string]interface{})
 
-		res, err := httpClient.Do(req)
+		res, err := httpconf.HTTPClient.Do(req)
 		if err != nil {
 			log.Fatal().Err(err).Msg("httpClient.Do")
 		}
@@ -35,14 +34,11 @@ func main() {
 			log.Fatal().Err(err).Msg("Decode")
 		}
 
-		userState["state"] = resp["state"]
-		userState["substates"] = resp["substates"]
-		userState["time"] = resp["time"]
-		userState["reason"] = resp["reason"]
+		storage.AgentEvents.UserState = resp
 
-		//pgui.UserState.SetText(fmt.Sprintln(userState))
+		result, _ := storage.AgentEvents.ToString("UserState")
 
-		pgui.UserState.SetText("TEST")
+		pgui.UserState.SetText(result)
 
 		//log.Info().Str("resp", fmt.Sprintln(resp)).Msg("")
 		//log.Info().Str("resp[state]", fmt.Sprintln(resp["state"])).Msg("")

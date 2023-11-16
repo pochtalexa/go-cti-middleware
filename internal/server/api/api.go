@@ -83,8 +83,9 @@ func RunAPI(urlStr string) error {
 	mux.Use(httplog.RequestLogger(logger))
 
 	mux.Get("/", handlers.RootHandler)
+	mux.Post("/api/v1/control", handlers.ControlHandler)
 
-	log.Info().Str("Running on", urlStr).Msg("http server started")
+	log.Info().Str("Running on", urlStr).Msg("httpconf server started")
 
 	return http.ListenAndServe(urlStr, mux)
 }

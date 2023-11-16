@@ -2,7 +2,10 @@ package storage
 
 import (
 	"fmt"
-	"strings"
+)
+
+var (
+	AgentEvents = NewAgentEvents()
 )
 
 type StAgentEvents struct {
@@ -30,14 +33,33 @@ func NewAgentEvents() *StAgentEvents {
 	return &StAgentEvents{}
 }
 
-func ToString(el map[string]interface{}) string {
-	var storeList []string
+//func ToString(el map[string]interface{}) string {
+//	var storeList []string
+//
+//	for k, v := range el {
+//		storeList = append(storeList, k+":"+fmt.Sprintf("%v", v))
+//	}
+//
+//	result := strings.Join(storeList, ",")
+//
+//	return result
+//}
 
-	for k, v := range el {
-		storeList = append(storeList, k+":"+fmt.Sprintf("%v", v))
+func (a *StAgentEvents) ToString(name string) (string, error) {
+	var result string
+
+	switch name {
+	case "UserState":
+		_, ok := a.UserState["name"]
+		if ok {
+			result = fmt.Sprintf("state: %v, substates: %v, reason: %v",
+				a.UserState["state"], a.UserState["substates"], a.UserState["reason"])
+		} else {
+			result = "-"
+		}
+	default:
+		return "", fmt.Errorf("ToString - can not find event name: %s", name)
 	}
 
-	result := strings.Join(storeList, ",")
-
-	return result
+	return result, nil
 }

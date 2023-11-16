@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/api"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/config"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/cti"
@@ -9,7 +8,6 @@ import (
 	"github.com/pochtalexa/go-cti-middleware/internal/server/ws"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"net/url"
 )
 
 func main() {
@@ -18,38 +16,28 @@ func main() {
 	// TODO sync.Mutex
 
 	appConfig := config.NewConfig()
-
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
 	if err := appConfig.ReadConfigFile(); err != nil {
 		log.Fatal().Err(err).Msg("ReadConfigFile")
 	}
-
 	if appConfig.Settings.LogLevel != "info" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
-	uCTI := url.URL{
-		Scheme: appConfig.CtiAPI.Scheme,
-		Host:   appConfig.CtiAPI.Host + ":" + appConfig.CtiAPI.Port,
-		Path:   appConfig.CtiAPI.Path,
-	}
-	log.Info().Str("ws connecting to", uCTI.String()).Msg("")
-
-	c, _, err := websocket.DefaultDialer.Dial(uCTI.String(), nil)
+	wsConn, err := cti.Init(appConfig)
 	if err != nil {
-		log.Fatal().Err(err).Msg("dial")
+		log.Fatal().Err(err).Msg("cti.Init")
 	}
-	defer c.Close()
-	log.Info().Str("ws connected", uCTI.String()).Msg("")
+	defer wsConn.Close()
 
-	go ws.ReadMessage(c, storage.AgentsInfo)
+	go ws.ReadMessage(wsConn, storage.AgentsInfo)
 
-	if err := cti.InitCTISess(c); err != nil {
-		log.Fatal().Err(err).Msg("initCTISess")
+	if err := cti.InitCTISess(wsConn); err != nil {
+		log.Fatal().Err(err).Msg("InitCTISess")
 	}
 
-	if err := cti.AttachUser(c, "agent"); err != nil {
+	if err := cti.AttachUser(wsConn, "agent"); err != nil {
 		log.Fatal().Err(err).Msg("AttachUser")
 	}
 
