@@ -1,9 +1,12 @@
 package main
 
 import (
+	"database/sql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/api"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/config"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/cti"
+	"github.com/pochtalexa/go-cti-middleware/internal/server/migrations"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/storage"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/ws"
 	"github.com/rs/zerolog"
@@ -25,6 +28,17 @@ func main() {
 	}
 	if appConfig.Settings.LogLevel != "info" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	DBconn, err := sql.Open("pgx", appConfig.DB.DBConn)
+	if err != nil {
+		log.Fatal().Err(err).Msg("sql.Open")
+	}
+	defer DBconn.Close()
+
+	err = migrations.ApplyMigrations(DBconn)
+	if err != nil {
+		log.Fatal().Err(err).Msg("ApplyMigrations")
 	}
 
 	wsConn, err := cti.Init(appConfig)
