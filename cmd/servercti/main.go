@@ -14,6 +14,8 @@ func main() {
 	// TODO тесты
 	// TODO авторизация агента + DB
 	// TODO sync.Mutex
+	// TODO Обработка ошибок
+	// TODO обработка ответа CTI на отправленные команды
 
 	appConfig := config.NewConfig()
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)

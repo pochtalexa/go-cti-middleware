@@ -9,17 +9,13 @@ import (
 	"slices"
 )
 
-func SendCommand(c *websocket.Conn, wsMessage *storage.StWsCommand) error {
-
-	body, err := json.Marshal(wsMessage)
-	if err != nil {
-		return fmt.Errorf("marshal: %w", err)
-	}
-
-	err = c.WriteMessage(websocket.TextMessage, body)
+func SendCommand(c *websocket.Conn, body []byte) error {
+	err := c.WriteMessage(websocket.TextMessage, body)
 	if err != nil {
 		return fmt.Errorf("wsSendMessage: %w", err)
 	}
+
+	log.Info().Str("message body", string(body)).Msg("WS SendCommand")
 
 	return nil
 }
@@ -35,20 +31,24 @@ func ReadMessage(c *websocket.Conn, agentsInfo *storage.StAgentsInfo) {
 			log.Error().Err(err).Msg("ReadMessage")
 		}
 
-		if err = json.Unmarshal(message, &wsEvent.Body); err != nil {
-			log.Error().Err(err).Msg("Unmarshal")
+		if err = json.Unmarshal(message, &wsEvent); err != nil {
+			log.Error().Err(err).Msg("Unmarshal wsEvent")
 		}
 
-		wsEvent.Parse()
+		if err = json.Unmarshal(message, &wsEvent.Body); err != nil {
+			log.Error().Err(err).Msg("Unmarshal wsEvent.Body")
+		}
 
-		if err = agentsInfo.SetEvent(wsEvent); err != nil {
+		//wsEvent.Parse()
+
+		if err = agentsInfo.SetEvent(wsEvent, message); err != nil {
 			log.Error().Err(err).Msg("SetEvent")
 		}
 
 		if slices.Contains(wsEvent.ErrorNames, wsEvent.Name) {
 			log.Error().Str("message", fmt.Sprintln(wsEvent.Body)).Msg("wsReadMessage")
 		} else {
-			log.Info().Str("event name", wsEvent.Name).Str("message", fmt.Sprintln(wsEvent.Body)).Msg("wsReadMessage")
+			log.Info().Str("event name", wsEvent.Name).Str("message body", fmt.Sprintln(wsEvent.Body)).Msg("wsReadMessage")
 		}
 		//log.Info().Str("message", wsEvent.Name).Msg("name")
 		//log.Info().Str("message", wsEvent.Login).Msg("login")

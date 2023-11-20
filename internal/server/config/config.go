@@ -15,6 +15,7 @@ type Config struct {
 
 type Settings struct {
 	LogLevel string
+	UseAuth  bool
 }
 
 type CtiAPI struct {
@@ -46,7 +47,7 @@ func (c *Config) ReadConfigFile() error {
 		return fmt.Errorf("unmarshal: %w", err)
 	}
 
-	log.Info().Msg("config file parsed - ok")
+	log.Debug().Msg("config file parsed - ok")
 
 	return nil
 }

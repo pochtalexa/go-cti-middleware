@@ -1,6 +1,7 @@
-[Setings]
+[Settings]
+# LogLevel = "debug"
 LogLevel = "info"
-#LogLevel = "debug"
+UseAuth = false
 
 [CtiAPI]
 Scheme = "ws"

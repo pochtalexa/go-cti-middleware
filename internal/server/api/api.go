@@ -5,13 +5,10 @@ import (
 	"compress/gzip"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/httplog/v2"
 	"github.com/pochtalexa/go-cti-middleware/internal/server/handlers"
 	"github.com/rs/zerolog/log"
-	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // проверяем, что клиент отправил серверу сжатые данные в формате gzip
@@ -21,7 +18,7 @@ func checkGzipEncoding(r *http.Request) bool {
 	encodingsStr := strings.Join(encodingSlice, ",")
 	encodings := strings.Split(encodingsStr, ",")
 
-	log.Info().Str("encodingsStr", encodingsStr).Msg("checkGzipEncoding")
+	log.Debug().Str("encodingsStr", encodingsStr).Msg("checkGzipEncoding")
 
 	for _, el := range encodings {
 		if el == "gzip" {
@@ -46,45 +43,45 @@ func GzipDecompression(next http.Handler) http.Handler {
 			defer gzipReader.Close()
 		}
 
-		log.Info().Msg("GzipDecompression passed")
+		log.Debug().Msg("GzipDecompression passed")
 
 		next.ServeHTTP(w, r)
 	})
 }
 
 func RunAPI(urlStr string) error {
-	logger := httplog.NewLogger("httplog", httplog.Options{
-		LogLevel: slog.LevelDebug,
-		//JSON:             true,
-		Concise:          false,
-		RequestHeaders:   true,
-		ResponseHeaders:  true,
-		MessageFieldName: "msg",
-		//LevelFieldName:   "severity",
-		TimeFieldFormat: time.RFC3339,
-		Tags: map[string]string{
-			"version": "v1.0",
-			"env":     "dev",
-		},
-		//QuietDownRoutes: []string{
-		//	"/",
-		//	"/ping",
-		//},
-		//QuietDownPeriod: 10 * time.Second,
-		//SourceFieldName: "source",
-	})
+	//logger := httplog.NewLogger("httplog", httplog.Options{
+	//	LogLevel: slog.LevelDebug,
+	//	//JSON:             true,
+	//	Concise:          false,
+	//	RequestHeaders:   true,
+	//	ResponseHeaders:  true,
+	//	MessageFieldName: "msg",
+	//	//LevelFieldName:   "severity",
+	//	TimeFieldFormat: time.RFC3339,
+	//	Tags: map[string]string{
+	//		"version": "v1.0",
+	//		"env":     "dev",
+	//	},
+
+	//QuietDownRoutes: []string{
+	//	"/",
+	//	"/ping",
+	//},
+	//QuietDownPeriod: 10 * time.Second,
+	//SourceFieldName: "source",
+	//})
 
 	mux := chi.NewRouter()
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.Recoverer)
 	mux.Use(GzipDecompression)
 	mux.Use(middleware.Compress(flate.DefaultCompression, "application/json", "text/html"))
-	mux.Use(middleware.Logger)
-	mux.Use(httplog.RequestLogger(logger))
+	//mux.Use(middleware.Logger)
+	//mux.Use(httplog.RequestLogger(logger))
 
-	mux.Get("/", handlers.RootHandler)
-	mux.Get("/api/v1/events/{login}", handlers.GetEventsHandler)
 	mux.Post("/api/v1/control", handlers.ControlHandler)
+	mux.Get("/api/v1/events/{login}", handlers.EventsHandler)
 
 	log.Info().Str("Running on", urlStr).Msg("httpconf server started")
 

@@ -6,9 +6,10 @@ import (
 )
 
 var (
-	ServAddr string
-	Login    string
-	Password string
+	ServAddr   string
+	Login      string
+	Password   string
+	UrlControl string
 )
 
 func isFlagPassed(name string) bool {
@@ -30,6 +31,8 @@ func ParseFlags() {
 	flag.StringVar(&Login, "l", defaultLogin, "login")
 	flag.StringVar(&Password, "p", defaultPassword, "password")
 	flag.Parse()
+
+	UrlControl = ServAddr + "/api/v1/control"
 
 	log.Info().Msg("ParseFlags - ok")
 }
