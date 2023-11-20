@@ -13,3 +13,10 @@ Port = "8098"
 Scheme = "http"
 Host = "localhost"
 Port = "9595"
+
+[DB]
+Host = "localhost"
+Port = "5432"
+DBname = "cti"
+User = "cti"
+Password = "cti"

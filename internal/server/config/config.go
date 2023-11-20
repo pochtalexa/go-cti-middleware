@@ -11,6 +11,7 @@ type Config struct {
 	Settings Settings
 	CtiAPI   CtiAPI
 	HttpAPI  HttpAPI
+	DB       DB
 }
 
 type Settings struct {
@@ -31,6 +32,15 @@ type HttpAPI struct {
 	Port   string
 }
 
+type DB struct {
+	Host     string
+	Port     string
+	DBname   string
+	User     string
+	Password string
+	DBConn   string
+}
+
 func NewConfig() *Config {
 	return &Config{}
 }
@@ -46,6 +56,9 @@ func (c *Config) ReadConfigFile() error {
 	if err := toml.Unmarshal(file, c); err != nil {
 		return fmt.Errorf("unmarshal: %w", err)
 	}
+
+	c.DB.DBConn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		c.DB.Host, c.DB.Port, c.DB.User, c.DB.Password, c.DB.DBname)
 
 	log.Debug().Msg("config file parsed - ok")
 
